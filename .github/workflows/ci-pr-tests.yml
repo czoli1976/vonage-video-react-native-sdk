@@ -218,6 +218,47 @@ jobs:
             React-native-TestApp/metro.log
           if-no-files-found: ignore
 
+  android-unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install React-native-TestApp dependencies
+        working-directory: React-native-TestApp
+        run: npm install
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+
+      # The library is built as an included project of the TestApp, which provides
+      # the React Native Gradle plugin and autolinking.
+      - name: Run Android unit tests
+        working-directory: React-native-TestApp/android
+        run: ./gradlew :vonage_client-sdk-video-react-native:testDebugUnitTest --console=plain
+
+      - name: Upload Android unit test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-unit-test-reports
+          path: android/build/reports/tests/testDebugUnitTest
+          if-no-files-found: ignore
+
   e2e-android-tests:
     needs: unit-tests
     if: github.event.pull_request.head.repo.full_name == github.repository

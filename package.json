@@ -150,6 +150,11 @@
     },
     "release-it": {
       "undici": "^7.29.1"
+    },
+    "@react-native-community/cli": {
+      "body-parser": "^2.4.0",
+      "joi": "^17.13.9",
+      "qs": "^6.16.2"
     }
   },
   "jest": {
